@@ -1,0 +1,12 @@
+---
+description: Batasan change request worker / agent — hanya frontend Vite+React
+alwaysApply: true
+---
+
+# Change request (CR) — lingkup frontend
+
+Saat mengerjakan permintaan dari folder `change-request/inbox/` atau otomasi `scripts/cr-runner.ps1`:
+
+- **Boleh:** Vite, React, Tailwind CSS, TanStack Query, data dummy/mock/static di frontend, penyesuaian `package.json` / config build frontend (`vite.config.ts`, `eslint`, `tsconfig`, aset `public/`).
+- **Dilarang:** menambahkan backend, server, API routes, database server, atau layer server baru apa pun di repo ini.
+- Utamakan konsistensi dengan struktur dan gaya yang sudah ada; hindari refactor luas yang tidak diminta dalam berkas CR.
