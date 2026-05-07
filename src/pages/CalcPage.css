@@ -1,46 +1,101 @@
 .calc-page {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   align-items: center;
   justify-content: flex-start;
-  gap: 20px;
+  gap: 24px;
   padding: 32px 20px 48px;
   box-sizing: border-box;
   width: 100%;
+  overflow: hidden;
+}
+
+.calc-page::before {
+  content: '';
+  position: absolute;
+  inset: -35% -20%;
+  background:
+    radial-gradient(
+      ellipse 65% 45% at 18% 12%,
+      color-mix(in srgb, var(--accent) 22%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 55% 40% at 88% 72%,
+      color-mix(in srgb, var(--accent-bg) 90%, transparent),
+      transparent 55%
+    );
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.calc-page > * {
+  position: relative;
+  z-index: 1;
 }
 
 .calc-page__intro {
   max-width: 420px;
+  width: 100%;
+  padding: 22px 22px 20px;
+  border-radius: 22px;
+  border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--bg) 58%, transparent) 0%,
+    color-mix(in srgb, var(--accent-bg) 42%, transparent) 100%
+  );
+  backdrop-filter: blur(20px) saturate(165%);
+  -webkit-backdrop-filter: blur(20px) saturate(165%);
+  box-shadow:
+    var(--shadow),
+    inset 0 1px 0 color-mix(in srgb, var(--text-h) 7%, transparent);
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .calc-page__intro h1 {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
+  font-family: var(--heading);
   font-size: 2rem;
+  font-weight: 600;
   letter-spacing: -0.04em;
+  color: var(--text-h);
 }
 
 .calc-page__intro p {
   margin: 0;
   font-size: 0.95rem;
-  line-height: 145%;
+  line-height: 150%;
+  color: var(--text);
 }
 
 .calc-calculator {
-  width: min(100%, 320px);
-  padding: 20px;
-  border-radius: 24px;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  width: min(100%, 340px);
+  padding: 22px;
+  border-radius: 26px;
+  border: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
   background: linear-gradient(
-    145deg,
-    color-mix(in srgb, var(--bg) 55%, transparent) 0%,
-    color-mix(in srgb, var(--accent-bg) 35%, transparent) 100%
-  );
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+      155deg,
+      color-mix(in srgb, var(--bg) 52%, transparent) 0%,
+      color-mix(in srgb, var(--accent-bg) 48%, transparent) 52%,
+      color-mix(in srgb, var(--bg) 38%, transparent) 100%
+    ),
+    linear-gradient(
+      125deg,
+      transparent 40%,
+      color-mix(in srgb, var(--accent) 9%, transparent) 100%
+    );
+  backdrop-filter: blur(22px) saturate(175%);
+  -webkit-backdrop-filter: blur(22px) saturate(175%);
   box-shadow:
     var(--shadow),
-    inset 0 1px 0 color-mix(in srgb, var(--text-h) 8%, transparent);
+    inset 0 1px 1px color-mix(in srgb, var(--text-h) 10%, transparent),
+    inset 0 -1px 1px color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
 .calc-calculator__display {
@@ -49,20 +104,27 @@
   font-weight: 500;
   color: var(--text-h);
   text-align: right;
-  padding: 16px 14px;
-  margin-bottom: 16px;
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--code-bg) 65%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  padding: 18px 16px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--code-bg) 72%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 35%, transparent) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  box-shadow:
+    inset 0 2px 8px color-mix(in srgb, var(--text-h) 6%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--text-h) 5%, transparent);
   min-height: 1.6em;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   word-break: break-all;
 }
 
 .calc-calculator__keys {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 11px;
 }
 
 .calc-key {
@@ -70,21 +132,33 @@
   font-size: 1.05rem;
   font-weight: 500;
   padding: 14px 10px;
-  border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-  background: color-mix(in srgb, var(--bg) 40%, transparent);
+  border-radius: 15px;
+  border: 1px solid color-mix(in srgb, var(--border) 62%, transparent);
+  background: linear-gradient(
+    175deg,
+    color-mix(in srgb, var(--bg) 52%, transparent),
+    color-mix(in srgb, var(--accent-bg) 35%, transparent)
+  );
   color: var(--text-h);
   cursor: pointer;
   transition:
     transform 0.12s ease,
     background 0.15s ease,
-    border-color 0.15s ease;
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
   -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text-h) 9%, transparent),
+    0 1px 2px color-mix(in srgb, var(--text-h) 5%, transparent);
 }
 
 .calc-key:hover {
-  background: color-mix(in srgb, var(--accent-bg) 50%, var(--bg) 50%);
-  border-color: color-mix(in srgb, var(--accent-border) 45%, var(--border));
+  background: linear-gradient(
+    175deg,
+    color-mix(in srgb, var(--accent-bg) 55%, var(--bg) 45%),
+    color-mix(in srgb, var(--accent-bg) 45%, var(--bg) 55%)
+  );
+  border-color: color-mix(in srgb, var(--accent-border) 42%, var(--border));
 }
 
 .calc-key:active {
@@ -103,19 +177,22 @@
 
 .calc-key--accent {
   background: linear-gradient(
-    160deg,
-    color-mix(in srgb, var(--accent) 18%, transparent),
-    color-mix(in srgb, var(--accent-bg) 80%, transparent)
+    165deg,
+    color-mix(in srgb, var(--accent) 26%, transparent),
+    color-mix(in srgb, var(--accent-bg) 88%, transparent)
   );
-  border-color: color-mix(in srgb, var(--accent-border) 55%, var(--border));
+  border-color: color-mix(in srgb, var(--accent-border) 50%, var(--border));
   color: var(--accent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 28%, transparent),
+    0 2px 10px color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 .calc-key--accent:hover {
   background: linear-gradient(
-    160deg,
-    color-mix(in srgb, var(--accent) 28%, transparent),
-    color-mix(in srgb, var(--accent-bg) 90%, transparent)
+    165deg,
+    color-mix(in srgb, var(--accent) 34%, transparent),
+    color-mix(in srgb, var(--accent-bg) 95%, transparent)
   );
 }
 
@@ -126,7 +203,12 @@
 @media (max-width: 1024px) {
   .calc-page {
     padding: 24px 16px 40px;
-    gap: 16px;
+    gap: 18px;
+  }
+
+  .calc-page__intro {
+    padding: 18px 18px 16px;
+    border-radius: 18px;
   }
 
   .calc-page__intro h1 {
@@ -134,17 +216,34 @@
   }
 
   .calc-calculator {
-    padding: 16px;
-    border-radius: 20px;
+    padding: 17px;
+    border-radius: 22px;
   }
 
   .calc-calculator__display {
     font-size: 1.45rem;
-    padding: 14px 12px;
+    padding: 15px 13px;
+    margin-bottom: 14px;
+  }
+
+  .calc-calculator__keys {
+    gap: 9px;
   }
 
   .calc-key {
     padding: 12px 8px;
     font-size: 1rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .calc-calculator__keys {
+    gap: 8px;
+  }
+
+  .calc-key {
+    padding: 11px 6px;
+    font-size: 0.95rem;
+    border-radius: 13px;
   }
 }

@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from 'react'
-import { useCallback, useReducer } from 'react'
+import { useCallback, useEffect, useReducer, useRef } from 'react'
 import './CalcPage.css'
 
 type Op = '+' | '-' | '*' | '/'
@@ -153,6 +153,11 @@ function reducer(state: CalcState, action: CalcAction): CalcState {
 
 export default function CalcPage() {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    sectionRef.current?.focus({ preventScroll: true })
+  }, [])
 
   const inputDigit = useCallback((digit: string) => {
     dispatch({ type: 'digit', digit })
@@ -220,6 +225,7 @@ export default function CalcPage() {
 
   return (
     <section
+      ref={sectionRef}
       className="calc-page"
       onKeyDown={onKeyDown}
       tabIndex={0}
