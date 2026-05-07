@@ -1,7 +1,22 @@
-import { useCallback, useState } from 'react'
+import type { KeyboardEvent } from 'react'
+import { useCallback, useReducer } from 'react'
 import './CalcPage.css'
 
 type Op = '+' | '-' | '*' | '/'
+
+type CalcState = {
+  display: string
+  acc: number | null
+  op: Op | null
+  newEntry: boolean
+}
+
+const initialState: CalcState = {
+  display: '0',
+  acc: null,
+  op: null,
+  newEntry: false,
+}
 
 function applyOp(a: number, b: number, op: Op): number {
   switch (op) {
@@ -25,131 +40,166 @@ function formatResult(n: number): string {
   return String(parseFloat(n.toPrecision(12)))
 }
 
-export default function CalcPage() {
-  const [display, setDisplay] = useState('0')
-  const [acc, setAcc] = useState<number | null>(null)
-  const [pendingOp, setPendingOp] = useState<Op | null>(null)
-  const [startsNewNumber, setStartsNewNumber] = useState(false)
+type CalcAction =
+  | { type: 'digit'; digit: string }
+  | { type: 'op'; op: Op }
+  | { type: 'equals' }
+  | { type: 'clear' }
+  | { type: 'back' }
 
-  const resetAll = useCallback(() => {
-    setDisplay('0')
-    setAcc(null)
-    setPendingOp(null)
-    setStartsNewNumber(false)
-  }, [])
+function reducer(state: CalcState, action: CalcAction): CalcState {
+  switch (action.type) {
+    case 'clear':
+      return initialState
+
+    case 'digit': {
+      const { digit } = action
+      if (state.display === 'Error') {
+        return {
+          ...initialState,
+          display: digit === '.' ? '0.' : digit,
+          newEntry: false,
+        }
+      }
+      if (state.newEntry) {
+        return {
+          ...state,
+          newEntry: false,
+          display: digit === '.' ? '0.' : digit,
+        }
+      }
+      if (digit === '.' && state.display.includes('.')) {
+        return state
+      }
+      if (state.display === '0' && digit !== '.') {
+        return { ...state, display: digit }
+      }
+      return { ...state, display: state.display + digit }
+    }
+
+    case 'op': {
+      const { op } = action
+      if (state.display === 'Error') {
+        return state
+      }
+      const current = parseFloat(state.display)
+
+      if (state.acc !== null && state.op !== null && !state.newEntry) {
+        const result = applyOp(state.acc, current, state.op)
+        if (Number.isNaN(result)) {
+          return {
+            ...state,
+            acc: null,
+            op,
+            display: 'Error',
+            newEntry: true,
+          }
+        }
+        return {
+          ...state,
+          acc: result,
+          op,
+          display: formatResult(result),
+          newEntry: true,
+        }
+      }
+
+      return {
+        ...state,
+        acc: current,
+        op,
+        newEntry: true,
+      }
+    }
+
+    case 'equals': {
+      if (state.op === null || state.acc === null || state.display === 'Error') {
+        return state
+      }
+      const current = parseFloat(state.display)
+      const result = applyOp(state.acc, current, state.op)
+      if (Number.isNaN(result)) {
+        return {
+          ...initialState,
+          display: 'Error',
+          newEntry: true,
+        }
+      }
+      return {
+        ...initialState,
+        display: formatResult(result),
+        newEntry: true,
+      }
+    }
+
+    case 'back': {
+      if (state.newEntry || state.display === 'Error') {
+        return state
+      }
+      if (state.display.length <= 1) {
+        return { ...state, display: '0' }
+      }
+      const next = state.display.slice(0, -1)
+      return {
+        ...state,
+        display: next === '' || next === '-' ? '0' : next,
+      }
+    }
+
+    default:
+      return state
+  }
+}
+
+export default function CalcPage() {
+  const [state, dispatch] = useReducer(reducer, initialState)
 
   const inputDigit = useCallback((digit: string) => {
-    setDisplay((prev) => {
-      if (prev === 'Error') {
-        return digit === '.' ? '0.' : digit
-      }
-      if (startsNewNumber) {
-        setStartsNewNumber(false)
-        return digit === '.' ? '0.' : digit
-      }
-      if (digit === '.' && prev.includes('.')) {
-        return prev
-      }
-      if (prev === '0' && digit !== '.') {
-        return digit
-      }
-      return prev + digit
-    })
-  }, [startsNewNumber])
+    dispatch({ type: 'digit', digit })
+  }, [])
 
-  const inputOp = useCallback(
-    (op: Op) => {
-      setDisplay((prevStr) => {
-        if (prevStr === 'Error') {
-          return prevStr
-        }
-        const current = parseFloat(prevStr)
-
-        if (acc !== null && pendingOp !== null && !startsNewNumber) {
-          const result = applyOp(acc, current, pendingOp)
-          if (Number.isNaN(result)) {
-            setAcc(null)
-            setPendingOp(op)
-            setStartsNewNumber(true)
-            return 'Error'
-          }
-          setAcc(result)
-          setPendingOp(op)
-          setStartsNewNumber(true)
-          return formatResult(result)
-        }
-
-        setAcc(current)
-        setPendingOp(op)
-        setStartsNewNumber(true)
-        return prevStr
-      })
-    },
-    [acc, pendingOp, startsNewNumber],
-  )
+  const inputOp = useCallback((op: Op) => {
+    dispatch({ type: 'op', op })
+  }, [])
 
   const equals = useCallback(() => {
-    if (pendingOp === null || acc === null) {
-      return
-    }
-    setDisplay((prevStr) => {
-      if (prevStr === 'Error') {
-        return prevStr
-      }
-      const current = parseFloat(prevStr)
-      const result = applyOp(acc, current, pendingOp)
-      setAcc(null)
-      setPendingOp(null)
-      setStartsNewNumber(true)
-      if (Number.isNaN(result)) {
-        return 'Error'
-      }
-      return formatResult(result)
-    })
-  }, [acc, pendingOp])
+    dispatch({ type: 'equals' })
+  }, [])
+
+  const resetAll = useCallback(() => {
+    dispatch({ type: 'clear' })
+  }, [])
 
   const backspace = useCallback(() => {
-    if (startsNewNumber) {
-      return
-    }
-    setDisplay((prev) => {
-      if (prev === 'Error') {
-        return '0'
-      }
-      if (prev.length <= 1) {
-        return '0'
-      }
-      const next = prev.slice(0, -1)
-      return next === '' || next === '-' ? '0' : next
-    })
-  }, [startsNewNumber])
+    dispatch({ type: 'back' })
+  }, [])
 
   const onKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: KeyboardEvent<HTMLElement>) => {
       const { key } = e
       if (/^[0-9]$/.test(key)) {
         e.preventDefault()
-        inputDigit(key)
+        dispatch({ type: 'digit', digit: key })
         return
       }
       if (key === '.') {
         e.preventDefault()
-        inputDigit('.')
+        dispatch({ type: 'digit', digit: '.' })
         return
       }
       if (key === 'Enter' || key === '=') {
         e.preventDefault()
-        equals()
+        dispatch({ type: 'equals' })
         return
       }
       if (key === 'Escape') {
         e.preventDefault()
-        resetAll()
+        dispatch({ type: 'clear' })
         return
       }
       if (key === 'Backspace') {
         e.preventDefault()
-        backspace()
+        dispatch({ type: 'back' })
         return
       }
       const opMap: Record<string, Op> = {
@@ -160,11 +210,13 @@ export default function CalcPage() {
       }
       if (key in opMap) {
         e.preventDefault()
-        inputOp(opMap[key]!)
+        dispatch({ type: 'op', op: opMap[key]! })
       }
     },
-    [inputDigit, equals, resetAll, backspace, inputOp],
+    [],
   )
+
+  const { display } = state
 
   return (
     <section

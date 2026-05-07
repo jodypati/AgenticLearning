@@ -23,6 +23,14 @@ export default function AppShell({ children }: AppShellProps) {
           >
             Beranda
           </NavLink>
+          <NavLink
+            to="/calc"
+            className={({ isActive }) =>
+              'app-shell__link' + (isActive ? ' app-shell__link--active' : '')
+            }
+          >
+            Kalkulator
+          </NavLink>
         </nav>
       </header>
       {children}
