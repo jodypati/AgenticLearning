@@ -235,7 +235,7 @@ export default function CalcPage() {
         <h1>Kalkulator</h1>
         <p>
           Perhitungan cepat untuk kebutuhan kasir. Gunakan tombol atau
-          papan ketik (angka, + − × /, Enter, Escape, Backspace).
+          papan ketik (angka, − × ÷, Enter, Escape, Backspace).
         </p>
       </div>
 
@@ -306,13 +306,6 @@ export default function CalcPage() {
           </button>
           <button type="button" className="calc-key" onClick={() => inputDigit('6')}>
             6
-          </button>
-          <button
-            type="button"
-            className="calc-key calc-key--accent"
-            onClick={() => inputOp('+')}
-          >
-            +
           </button>
 
           <button type="button" className="calc-key" onClick={() => inputDigit('1')}>
