@@ -516,10 +516,12 @@ function Invoke-FrontendVerification([string]$WorkDir) {
   try {
     $npmRef = Get-Command npm -ErrorAction Stop
     $nodeJsDir = Split-Path -Parent $npmRef.Source
+    $npmExe = $npmRef.Source
     if ("$($npmRef.Source)" -match '\.ps1$') {
       $npmCmdSibling = Join-Path $nodeJsDir "npm.cmd"
       if (Test-Path -LiteralPath $npmCmdSibling -PathType Leaf) {
         $nodeJsDir = [System.IO.Path]::GetDirectoryName((Resolve-Path -LiteralPath $npmCmdSibling).Path)
+        $npmExe = (Resolve-Path -LiteralPath $npmCmdSibling).Path
       }
     }
     $localBin = Join-Path $WorkDir "node_modules\.bin"
@@ -531,10 +533,10 @@ function Invoke-FrontendVerification([string]$WorkDir) {
 
     Push-Location $WorkDir
     try {
-      & npm run lint
+      & $npmExe run lint
       if ($LASTEXITCODE -ne 0) { throw "npm run lint mengembalikan exit code $LASTEXITCODE" }
 
-      & npm run build
+      & $npmExe run build
       if ($LASTEXITCODE -ne 0) { throw "npm run build mengembalikan exit code $LASTEXITCODE" }
     }
     finally {
